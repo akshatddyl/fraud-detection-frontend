@@ -6,7 +6,7 @@ import random
 
 # --- Page Config & API URL ---
 st.set_page_config(
-    page_title="SecureBank Fraud Detection",
+    page_title="fraud detection app",
     page_icon="💳",
     layout="centered"
 )
@@ -30,7 +30,7 @@ FRAUD_TRANSACTION_TEMPLATE = {
     'V26': 0.1, 'V27': 0.4, 'V28': 0.1
 }
 # --- Secret Trigger Values ---
-SECRET_FRAUD_MERCHANT = "Risk-Wallet.com"
+SECRET_FRAUD_MERCHANT = "byjus"
 SECRET_FRAUD_AMOUNT = 987654.00
 
 # --- Custom CSS for "Bank" Theme ---
@@ -131,12 +131,12 @@ with tab2:
         
         col1, col2 = st.columns(2)
         with col1:
-            cardholder_name = st.text_input("Cardholder Name", "John M. Doe")
+            cardholder_name = st.text_input("Cardholder Name", "Your Nmae")
             # This is one of our "secret triggers"
-            merchant = st.text_input("Merchant Name", "Amazon Web Services")
+            merchant = st.text_input("Merchant Name", "Organization Name")
         with col2:
             # This is our other "secret trigger"
-            amount = st.number_input("Amount (₹)", min_value=0.01, value=15000.00, step=100.0, format="%.2f")
+            amount = st.number_input("Amount (₹/INR)", min_value=0.01, value=15000.00, step=100.0, format="%.2f")
             
         st.markdown("---")
         # Only one submit button
@@ -149,7 +149,7 @@ with tab2:
         # --- [NEW] Insufficient Funds Check ---
         if amount > st.session_state.wallet_balance:
             st.error(f"**Transaction DENIED: Insufficient Funds!**")
-            st.warning(f"Your balance is ₹{st.session_state.wallet_balance:,.2f}, but you requested ₹{amount:,.2f}.")
+            st.warning(f"Your balance is INR{st.session_state.wallet_balance:,.2f}, but you requested ₹{amount:,.2f}.")
         else:
             # --- Hidden Trigger Logic ---
             is_secret_fraud = (
@@ -200,7 +200,7 @@ with tab2:
 
 # --- TAB 3: Transaction Ledger ---
 with tab3:
-    st.header("Transaction Ledger")
+    st.header("Transaction History")
     st.markdown("View all processed transactions from the secure database.")
     
     if st.button("Refresh History"):
