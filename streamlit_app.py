@@ -80,7 +80,7 @@ st.markdown("""
 # --- Header & Logo ---
 # Using a placeholder for a clean "bank" logo
 st.image("https://placehold.co/600x100/004A99/FFFFFF?text=SecureBank+Portal&font=lato", use_column_width=True)
-st.title("💳 Real-Time Transaction Analysis")
+st.title("💳 Real-Time Transaction Analysis and Fraud Detection")
 
 # --- Helper Function to Get History ---
 # Use caching to avoid re-fetching data on every interaction
@@ -102,7 +102,7 @@ def get_history():
         return pd.DataFrame()
 
 # --- Main App Layout (Tabs) ---
-tab1, tab2 = st.tabs(["🏦 Make a Payment", "📈 Transaction Ledger"])
+tab1, tab2 = st.tabs(["🏦 Make a Payment", "📈 Transaction History"])
 
 # --- TAB 1: Payment Form ---
 with tab1:
