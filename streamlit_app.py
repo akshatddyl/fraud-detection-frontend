@@ -6,7 +6,7 @@ import random
 
 # --- Page Config & API URL ---
 st.set_page_config(
-    page_title="SecureBank Fraud Detection",
+    page_title="Real Time Fraud Detection",
     page_icon="💳",
     layout="centered"
 )
@@ -114,14 +114,14 @@ with tab1:
         # Realistic form fields
         col1, col2 = st.columns(2)
         with col1:
-            cardholder_name = st.text_input("Cardholder Name", "John M. Doe")
+            cardholder_name = st.text_input("Cardholder Name", "Your Name")
             card_number = st.text_input("Card Number (mock)", "4242 4242 4242 4242")
             merchant = st.text_input("Merchant Name", "Amazon Web Services")
         
         with col2:
             # This is the 'Amount' that will be sent to the model
-            amount = st.number_input("Amount ($)", min_value=0.01, value=199.99, step=10.0, format="%.2f")
-            expiry_date = st.text_input("Expiry Date (MM/YY)", "12/26")
+            amount = st.number_input("Amount (in Indian Rupee)", min_value=0.01, value=199.99, step=10.0, format="%.2f")
+            expiry_date = st.text_input("Expiry Date (MM/YY)", "12/25")
             cvv = st.text_input("CVV (mock)", "123", type="password")
             
         # Submit button for the form
