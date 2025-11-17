@@ -80,7 +80,7 @@ st.markdown("""
 
 # --- Header & Logo ---
 st.image("https://placehold.co/600x100/004A99/FFFFFF?text=SecureBank+Portal&font=lato", use_column_width=True)
-st.title("💳 Real-Time Transaction Analysis")
+st.title("💳 Real-Time Transaction Analysis & Fraud Detection")
 
 # --- Helper Function to Get History ---
 @st.cache_data(ttl=60)
@@ -102,7 +102,7 @@ def get_history():
 
 # --- Main App Layout (Tabs) ---
 # [NEW] Wallet tab is now first
-tab1, tab2, tab3 = st.tabs(["💼 My Wallet", "🏦 Make a Payment", "📈 Transaction Ledger"])
+tab1, tab2, tab3 = st.tabs(["💼 My Wallet", "🏦 Make a Payment", "📈 Transaction History"])
 
 # --- [NEW] TAB 1: My Wallet ---
 with tab1:
@@ -131,7 +131,7 @@ with tab2:
         
         col1, col2 = st.columns(2)
         with col1:
-            cardholder_name = st.text_input("Cardholder Name", "Your Nmae")
+            cardholder_name = st.text_input("Cardholder Name", "Your Name")
             # This is one of our "secret triggers"
             merchant = st.text_input("Merchant Name", "Organization Name")
         with col2:
