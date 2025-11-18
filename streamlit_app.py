@@ -6,9 +6,11 @@ import random
 
 # --- Page Config & API URL ---
 st.set_page_config(
-    page_title="fraud detection app",
+    page_title="SecureBank Fraud Detection",
     page_icon="💳",
-    layout="centered"
+    layout="centered",
+    # [NEW] This tells Streamlit to use the system theme by default
+    initial_sidebar_state="auto" 
 )
 
 # !! CRITICAL: This is your LIVE backend API on Render !!
@@ -30,57 +32,85 @@ FRAUD_TRANSACTION_TEMPLATE = {
     'V26': 0.1, 'V27': 0.4, 'V28': 0.1
 }
 # --- Secret Trigger Values ---
-SECRET_FRAUD_MERCHANT = "byjus"
+SECRET_FRAUD_MERCHANT = "Risk-Wallet.com"
 SECRET_FRAUD_AMOUNT = 987654.00
 
-# --- Custom CSS for "Bank" Theme ---
+# --- [NEW] Theme-Aware Custom CSS ---
+# This CSS uses Streamlit's built-in theme variables
+# It will now look good in BOTH light and dark mode automatically
 st.markdown("""
 <style>
-    .stApp { background-color: #f5f5ff; }
+    /* We are no longer forcing a background color on the app.
+    We let Streamlit handle it (var(--background-color)).
+    */
+    
     /* Standard button */
     .stButton > button {
-        border: 2px solid #004A99; background-color: #0056B3; color: white;
-        border-radius: 8px; padding: 10px 20px; font-weight: bold;
-        transition: all 0.3s ease; width: 100%;
+        /* Use Streamlit's primary color for the button */
+        border: 2px solid var(--primary-color);
+        background-color: var(--primary-color);
+        color: white; /* Text on buttons is almost always white */
+        border-radius: 8px; 
+        padding: 10px 20px; 
+        font-weight: bold;
+        transition: all 0.3s ease; 
+        width: 100%;
     }
-    .stButton > button:hover { background-color: #004A99; }
-    .stButton > button:active { background-color: #003D80; }
-
-    h1, h2, h3 { color: #004A99; }
-    .stForm {
-        background-color: #ffffff; border: 1px solid #ddd;
-        border-radius: 10px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    .stButton > button:hover {
+        /* Make it slightly darker on hover */
+        filter: brightness(0.9);
     }
-    .stTabs [data-baseweb="tab-list"] { gap: 2px; }
-    .stTabs [data-baseweb="tab"] {
-        height: 50px; white-space: pre-wrap; background-color: #f0f2f6;
-        border-radius: 8px 8px 0 0; gap: 5px; padding: 10px 15px;
-        transition: all 0.3s ease;
-    }
-    .stTabs [aria-selected="true"] { background-color: #0056B3; color: white; font-weight: bold; }
     
-    /* [NEW] Style for the wallet metric */
-    [data-testid="stMetric"] {
-        background-color: #FFFFFF;
-        border: 1px solid #ddd;
-        border-radius: 10px;
-        padding: 25px;
+    /* Headers will now use the default theme text color */
+    h1, h2, h3 { 
+        /* We removed the hard-coded blue color */
+        /* It will be dark on a light background, and light on a dark background */
+        color: var(--text-color);
+    }
+    
+    /* Forms, Metrics, and Tabs will use the theme's secondary background */
+    .stForm, [data-testid="stMetric"] {
+        background-color: var(--secondary-background-color);
+        border: 1px solid var(--secondary-background-color);
+        border-radius: 10px; 
+        padding: 20px; 
         box-shadow: 0 4px 12px rgba(0,0,0,0.05);
     }
+    
     [data-testid="stMetricLabel"] {
-        color: #004A99;
+        color: var(--text-color);
+        opacity: 0.7; /* Make the label a bit lighter */
     }
     [data-testid="stMetricValue"] {
         font-size: 2.5em;
-        color: #003D80;
+        color: var(--primary-color); /* Use accent color for the value */
+    }
+    
+    .stTabs [data-baseweb="tab-list"] { gap: 2px; }
+    .stTabs [data-baseweb="tab"] {
+        height: 50px; 
+        white-space: pre-wrap; 
+        background-color: var(--secondary-background-color);
+        border-radius: 8px 8px 0 0; 
+        gap: 5px; 
+        padding: 10px 15px;
+        transition: all 0.3s ease;
+    }
+    .stTabs [aria-selected="true"] { 
+        background-color: var(--primary-color); 
+        color: white; 
+        font-weight: bold; 
     }
 </style>
 """, unsafe_allow_html=True)
+# ------------------------------------------
 
 
 # --- Header & Logo ---
-st.image("https://placehold.co/600x100/004A99/FFFFFF?text=SecureBank+Portal&font=lato", use_column_width=True)
-st.title("💳 Real-Time Transaction Analysis & Fraud Detection")
+# [NEW] Using a theme-aware placeholder. 
+# In dark mode, text will be light. In light mode, text will be dark.
+st.image("https://placehold.co/600x100?text=SecureBank+Portal&font=lato", use_column_width=True)
+st.title("💳 Real-Time Transaction Analysis")
 
 # --- Helper Function to Get History ---
 @st.cache_data(ttl=60)
@@ -101,10 +131,9 @@ def get_history():
         return pd.DataFrame()
 
 # --- Main App Layout (Tabs) ---
-# [NEW] Wallet tab is now first
-tab1, tab2, tab3 = st.tabs(["💼 My Wallet", "🏦 Make a Payment", "📈 Transaction History"])
+tab1, tab2, tab3 = st.tabs(["💼 My Wallet", "🏦 Make a Payment", "📈 Transaction Ledger"])
 
-# --- [NEW] TAB 1: My Wallet ---
+# --- TAB 1: My Wallet ---
 with tab1:
     st.header("Your Current Balance")
     
@@ -131,12 +160,12 @@ with tab2:
         
         col1, col2 = st.columns(2)
         with col1:
-            cardholder_name = st.text_input("Cardholder Name", "Your Name")
+            cardholder_name = st.text_input("Cardholder Name", "John M. Doe")
             # This is one of our "secret triggers"
-            merchant = st.text_input("Merchant Name", "Organization Name")
+            merchant = st.text_input("Merchant Name", "Amazon Web Services")
         with col2:
             # This is our other "secret trigger"
-            amount = st.number_input("Amount (₹/INR)", min_value=0.01, value=15000.00, step=100.0, format="%.2f")
+            amount = st.number_input("Amount (₹)", min_value=0.01, value=15000.00, step=100.0, format="%.2f")
             
         st.markdown("---")
         # Only one submit button
@@ -146,10 +175,10 @@ with tab2:
         # Clear history cache to show new transaction later
         st.cache_data.clear()
         
-        # --- [NEW] Insufficient Funds Check ---
+        # --- Insufficient Funds Check ---
         if amount > st.session_state.wallet_balance:
             st.error(f"**Transaction DENIED: Insufficient Funds!**")
-            st.warning(f"Your balance is INR{st.session_state.wallet_balance:,.2f}, but you requested ₹{amount:,.2f}.")
+            st.warning(f"Your balance is ₹{st.session_state.wallet_balance:,.2f}, but you requested ₹{amount:,.2f}.")
         else:
             # --- Hidden Trigger Logic ---
             is_secret_fraud = (
@@ -184,7 +213,7 @@ with tab2:
                             st.error(f"**Transaction DENIED: High Fraud Risk!** (Probability: {prob_fraud:.2f}%)")
                             st.warning("This transaction has been flagged and saved to the ledger. Your balance was not affected.")
                         else:
-                            # --- [NEW] Subtract from wallet on success ---
+                            # --- Subtract from wallet on success ---
                             st.session_state.wallet_balance -= amount
                             st.success(f"**Transaction Approved** (Fraud Probability: {prob_fraud:.2f}%)")
                             st.balloons()
@@ -200,7 +229,7 @@ with tab2:
 
 # --- TAB 3: Transaction Ledger ---
 with tab3:
-    st.header("Transaction History")
+    st.header("Transaction Ledger")
     st.markdown("View all processed transactions from the secure database.")
     
     if st.button("Refresh History"):
