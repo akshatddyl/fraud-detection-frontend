@@ -123,8 +123,8 @@ with tab2:
             st.warning(f"Your balance is ₹(INR) {st.session_state.wallet_balance:,.2f}, but you requested ₹(INR){amount:,.2f}.")
         else:
             is_secret_fraud = (
-                merchant == SECRET_FRAUD_MERCHANT or 
-                amount == SECRET_FRAUD_AMOUNT
+                merchant in SECRET_FRAUD_MERCHANT or 
+                amount in SECRET_FRAUD_AMOUNT
             )
             if is_secret_fraud:
                 st.toast("High-Risk transaction detected, running extra checks...")
