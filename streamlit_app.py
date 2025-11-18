@@ -126,30 +126,23 @@ with tab2:
                 merchant == SECRET_FRAUD_MERCHANT or 
                 amount == SECRET_FRAUD_AMOUNT
             )
-            
             if is_secret_fraud:
                 st.toast("High-Risk transaction detected, running extra checks...")
                 v_features = {k: v + random.uniform(-0.1, 0.1) for k, v in FRAUD_TRANSACTION_TEMPLATE.items()}
             else:
-                # This is the "Genuine" path
                 v_features = {f'V{i}': random.uniform(-5, 5) for i in range(1, 29)}
-            
             with st.spinner("Processing transaction... Contacting bank..."):
-                
                 transaction_data = {
                     "Time": time.time() % 172800,
                     "Amount": amount,
                     **v_features
                 }
-                
                 try:
                     response = requests.post(f"{API_URL}/predict/", json=transaction_data)
-                    
                     if response.status_code == 200:
                         prediction = response.json()
                         is_fraud = prediction['is_fraud']
                         prob_fraud = prediction['probability_fraud'] * 100
-                        
                         if is_fraud == 1:
                             st.error(f"**Transaction DENIED: High Fraud Risk!** (Probability: {prob_fraud:.2f}%)")
                             st.warning("This transaction has been flagged. Your balance was not affected.")
@@ -157,36 +150,27 @@ with tab2:
                             st.session_state.wallet_balance -= amount
                             st.success(f"**Transaction Approved** (Fraud Probability: {prob_fraud:.2f}%)")
                             st.balloons()
-                            st.info(f"New balance: ₹(INR){st.session_state.wallet_balance:,.2f}")
-                            
+                            st.info(f"New balance: ₹(INR){st.session_state.wallet_balance:,.2f}")  
                     else:
                         st.error(f"Error from API ({response.status_code}): {response.text}")
-                
                 except requests.exceptions.ConnectionError:
                     st.error(f"Connection Error: Could not connect to the Server at {API_URL}.")
                 except Exception as e:
                     st.error(f"An error occurred during submission: {e}")
-
-# --- TAB 3: Transaction Ledger ---
 with tab3:
     st.header("Transaction History")
     st.markdown("View all processed transactions from the secure database.")
-    
     if st.button("Refresh History"):
         st.cache_data.clear()
         st.toast("Refreshing history...")
-
     history_df = get_history()
-    
     if history_df.empty:
         st.info("No transaction history found. Submit a payment to see it appear here.")
     else:
-        # --- Format the DataFrame (changed to ₹) ---
         history_df['Status'] = history_df['is_fraud'].apply(lambda x: "FRAUD 🚨" if x == 1 else "Genuine ✅")
         history_df['Fraud Probability'] = history_df['probability_fraud'].apply(lambda p: f"{p*100:.2f}%")
         history_df['Amount'] = history_df['Amount'].apply(lambda a: f"₹{a:,.2f}")
         display_cols = ['id', 'Amount', 'Status', 'Fraud Probability', 'Time']
-        
         st.dataframe(
             history_df.sort_values(by="id", ascending=False)[display_cols],
             use_container_width=True,
